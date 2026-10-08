@@ -206,9 +206,9 @@ int main() {
         RangeMonitor m(plain());
         m.update(-18.0f, 1000);
         m.update(-18.0f, 2000);
-        CHECK(m.snapshot(2000).stateSinceMs == 1000);
+        CHECK(m.getStatus(2000).stateSinceMs == 1000);
         m.update(-10.0f, 3000);
-        CHECK(m.snapshot(3000).stateSinceMs == 3000);
+        CHECK(m.getStatus(3000).stateSinceMs == 3000);
     }
 
     return finish("test_states");

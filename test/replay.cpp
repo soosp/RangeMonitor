@@ -103,7 +103,7 @@ int main(int argc, char** argv) {
         samples++;
 
         if (tr.changed() || trace) {
-            RangeMonitor::Snapshot s = m.snapshot(ms);
+            RangeMonitor::Status s = m.getStatus(ms);
             fmtTime(sec - t0, when, sizeof(when));
             RangeMonitor::stateName(tr.from, from, sizeof(from));
             RangeMonitor::stateName(tr.to, to, sizeof(to));

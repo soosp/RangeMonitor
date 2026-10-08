@@ -101,7 +101,7 @@ int main() {
         CHECK(m.reset());
         CHECK_STATE(m.state(), State::UNKNOWN);
         CHECK(std::isnan(m.value()));
-        CHECK(m.snapshot(0).sampleCount == 0);
+        CHECK(m.getStatus(0).sampleCount == 0);
         Cfg active;
         m.getConfig(active);
         CHECK_NEAR(active.hiSoft, -15.0f, 1e-6);
@@ -121,7 +121,7 @@ int main() {
         CHECK_STATE(m.state(), State::PENDING_HIGH);
         f.hold(-12.0f, 20);
         CHECK_STATE(m.state(), State::ALARM_HIGH);
-        CHECK(m.snapshot(f.now).valueSettled);
+        CHECK(m.getStatus(f.now).valueSettled);
     }
 
     SECTION("isAlarm / isHigh / isLow");

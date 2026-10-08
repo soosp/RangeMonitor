@@ -103,6 +103,14 @@
 
 #include <ExponentialAverage.h> // https://github.com/soosp/RunningStatistics
 
+/// Marks an API as deprecated with a compile-time warning. GCC/Clang syntax,
+/// because the Arduino AVR core compiles as C++11 (no [[deprecated]]).
+#if defined(__GNUC__) || defined(__clang__)
+    #define RANGE_MONITOR_DEPRECATED(msg) __attribute__((deprecated(msg)))
+#else
+    #define RANGE_MONITOR_DEPRECATED(msg)
+#endif
+
 /// Mutex acquisition timeout in milliseconds (ESP32 only).
 /// Override before including this header or in build_flags.
 #ifndef RANGE_MONITOR_MUTEX_TIMEOUT
@@ -293,9 +301,9 @@ public:
     /**
      * @brief Consistent copy of the monitor's runtime state.
      *
-     * All fields are captured under one mutex acquisition.
+     * All fields are captured under one mutex acquisition; see getStatus().
      */
-    struct Snapshot {
+    struct Status {
         State    state;         ///< Current state
         float    value;         ///< Smoothed value (EMA); NAN before the first valid sample
         float    raw;           ///< Last raw sample; NAN if it was invalid
@@ -303,6 +311,9 @@ public:
         uint32_t sampleCount;   ///< Valid samples since construction or reset()
         uint32_t stateSinceMs;  ///< Timestamp of the last state change
     };
+
+    /// @deprecated Renamed to Status (0.2.0).
+    typedef Status Snapshot RANGE_MONITOR_DEPRECATED("use RangeMonitor::Status");
 
     /**
      * @brief State change produced by one update() call.
@@ -413,14 +424,14 @@ public:
     // =========================================================================
 
     /**
-     * @brief Return a consistent snapshot of the runtime state.
+     * @brief Return a consistent copy of the runtime state.
      *
      * @param nowMs  Current time, used for valueSettled.
-     * @return       Snapshot; on mutex timeout state is UNKNOWN and the
+     * @return       Status; on mutex timeout state is UNKNOWN and the
      *               values are NAN.
      */
-    Snapshot snapshot(uint32_t nowMs) const {
-        Snapshot s = { State::UNKNOWN, NAN, NAN, false, 0, 0 };
+    Status getStatus(uint32_t nowMs) const {
+        Status s = { State::UNKNOWN, NAN, NAN, false, 0, 0 };
         if (!_lock()) return s;
         s.state        = _state;
         s.value        = _ema.value();
@@ -433,8 +444,18 @@ public:
     }
 
 #ifdef ARDUINO
-    /// Snapshot at millis(). @see snapshot(uint32_t)
-    Snapshot snapshot() const { return snapshot((uint32_t)millis()); }
+    /// Status at millis(). @see getStatus(uint32_t)
+    Status getStatus() const { return getStatus((uint32_t)millis()); }
+#endif
+
+    /// @deprecated Renamed to getStatus() (0.2.0).
+    RANGE_MONITOR_DEPRECATED("use getStatus()")
+    Status snapshot(uint32_t nowMs) const { return getStatus(nowMs); }
+
+#ifdef ARDUINO
+    /// @deprecated Renamed to getStatus() (0.2.0).
+    RANGE_MONITOR_DEPRECATED("use getStatus()")
+    Status snapshot() const { return getStatus(); }
 #endif
 
     /**

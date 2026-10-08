@@ -207,7 +207,7 @@ time parameters fit the 32-bit millisecond clock.
 |`RangeMonitor(const Config& = Config())`|An invalid config is replaced by one with no limits; see `configError()`|
 |`Transition update(float raw, uint32_t nowMs)`|Feed a sample taken at `nowMs`|
 |`Transition update(float raw)`|Same, at `millis()` (Arduino builds)|
-|`Snapshot snapshot(uint32_t nowMs)` / `snapshot()`|State, smoothed and raw value, settled flag, sample count, time of the last change — one consistent copy|
+|`Status getStatus(uint32_t nowMs)` / `getStatus()`|State, smoothed and raw value, settled flag, sample count, time of the last change — one consistent copy|
 |`State state()`|Current state|
 |`float value()`|Smoothed value, `NAN` before the first valid sample|
 |`bool isAlarming()`|`isAlarm(state())`|
@@ -217,6 +217,10 @@ time parameters fit the 32-bit millisecond clock.
 |`bool reset()`|Back to `UNKNOWN` with an empty filter; config kept|
 
 `Transition` holds `from` and `to`; `changed()` is `from != to`.
+
+`snapshot()` and the `Snapshot` type are the pre-0.2.0 names of `getStatus()`
+and `Status`. They still work but produce a deprecation warning at compile
+time, and will be removed in a later release.
 
 ### Helpers
 

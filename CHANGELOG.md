@@ -8,6 +8,16 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- `getStatus()` and the `Status` struct, matching the naming used across the
+  library suite (`DigitalOutput`, `DS18B20Sensor`)
+
+### Deprecated
+
+- `snapshot()` and `Snapshot`: renamed to `getStatus()` and `Status`. The old
+  names still work but produce a compile-time deprecation warning
+
 ### Fixed
 
 - Make `run_tests.sh` executable

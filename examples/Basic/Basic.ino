@@ -31,7 +31,7 @@ void printTransition(const RangeMonitor::Transition& t) {
     char from[RangeMonitor::STATE_NAME_SIZE], to[RangeMonitor::STATE_NAME_SIZE];
     RangeMonitor::stateName(t.from, from, sizeof(from));
     RangeMonitor::stateName(t.to, to, sizeof(to));
-    RangeMonitor::Snapshot s = monitor.snapshot();
+    RangeMonitor::Status s = monitor.getStatus();
     Serial.print(from);
     Serial.print(F(" -> "));
     Serial.print(to);

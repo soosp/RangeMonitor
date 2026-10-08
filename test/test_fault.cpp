@@ -21,7 +21,7 @@ int main() {
         f.feed(-18.0f);
         CHECK_STATE(f.feed(NAN), State::FAULT);
         CHECK(f.alarms == 1);
-        CHECK(std::isnan(m.snapshot(f.now).raw));
+        CHECK(std::isnan(m.getStatus(f.now).raw));
         CHECK_STATE(f.feed(-18.0f), State::OK);
     }
 

@@ -96,9 +96,9 @@ int main() {
         c.spikeFilter = false;
         RangeMonitor m(c);
         m.update(1.0f, 5000);
-        CHECK(!m.snapshot(5000).valueSettled);
-        CHECK(!m.snapshot(5000 + 299999).valueSettled);
-        CHECK(m.snapshot(5000 + 300000).valueSettled);
+        CHECK(!m.getStatus(5000).valueSettled);
+        CHECK(!m.getStatus(5000 + 299999).valueSettled);
+        CHECK(m.getStatus(5000 + 300000).valueSettled);
     }
 
     SECTION("two samples at the same instant do not corrupt the EMA");
