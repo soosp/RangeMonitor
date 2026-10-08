@@ -1,6 +1,6 @@
 {
   "name": "RangeMonitor",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Range monitor for a scalar measurement on ESP32, ESP8266 and AVR (Arduino). A median-of-3 spike filter and a time-based EMA smooth the value; soft limits raise an alarm only after a configurable delay, hard limits raise it at once, and invalid samples become a FAULT after their own delay. Reports every state transition, handles irregular sampling, allocates nothing dynamically, and runs on a host PC for testing and replaying recorded data.",
   "keywords": "monitor, alarm, threshold, hysteresis, ema, median, filter, temperature, sensor, freertos",
   "repository": {

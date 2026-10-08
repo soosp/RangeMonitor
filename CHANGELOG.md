@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-08
+
 ### Added
 
 - `getStatus()` and the `Status` struct, matching the naming used across the
@@ -46,5 +48,6 @@ and this project adheres to
 - `test/replay.cpp`: replays a CSV recording through a configuration
 - Examples: `Basic`, `DefrostSimulation`
 
-[Unreleased]: https://github.com/soosp/RangeMonitor/compare/0.1.0...HEAD
+[Unreleased]: https://github.com/soosp/RangeMonitor/compare/0.2.0...HEAD
+[0.2.0]: https://github.com/soosp/RangeMonitor/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/soosp/RangeMonitor/releases/tag/0.1.0
