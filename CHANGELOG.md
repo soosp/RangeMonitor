@@ -8,6 +8,10 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Fixed
+
+- Make `run_tests.sh` executable
+
 ## [0.1.0] - 2026-10-08
 
 ### Added
