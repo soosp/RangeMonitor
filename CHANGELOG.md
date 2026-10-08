@@ -31,3 +31,6 @@ and this project adheres to
 - Host test suite in `test/`, runnable from VS Code with Ctrl+Shift+B
 - `test/replay.cpp`: replays a CSV recording through a configuration
 - Examples: `Basic`, `DefrostSimulation`
+
+[Unreleased]: https://github.com/soosp/RangeMonitor/compare/0.1.0...HEAD
+[0.1.0]: https://github.com/soosp/RangeMonitor/releases/tag/0.1.0
