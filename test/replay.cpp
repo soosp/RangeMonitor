@@ -36,7 +36,7 @@ static void usage() {
     fprintf(stderr,
         "usage: replay [--lo F] [--hi F] [--lo-hard F] [--hi-hard F] [--hyst F]\n"
         "              [--tau S] [--delay S] [--fault-delay S] [--no-spike]\n"
-        "              [--trace] [file.csv]\n");
+        "              [--alarm-in-band] [--trace] [file.csv]\n");
 }
 
 static void fmtTime(double s, char* buf, size_t len) {
@@ -62,6 +62,7 @@ int main(int argc, char** argv) {
         else if (!strcmp(a, "--delay")       && hasArg) c.alarmDelaySeconds = strtoul(argv[++i], nullptr, 10);
         else if (!strcmp(a, "--fault-delay") && hasArg) c.faultDelaySeconds = strtoul(argv[++i], nullptr, 10);
         else if (!strcmp(a, "--no-spike"))              c.spikeFilter       = false;
+        else if (!strcmp(a, "--alarm-in-band"))         c.confirmBeyondLimit = false;
         else if (!strcmp(a, "--trace"))                 trace               = true;
         else if (a[0] != '-')                           path                = a;
         else { usage(); return 2; }

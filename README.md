@@ -60,7 +60,7 @@ stateDiagram-v2
     [*] --> UNKNOWN
     UNKNOWN --> OK : first valid sample
     OK --> PENDING_HIGH : value > hiSoft
-    PENDING_HIGH --> ALARM_HIGH : delay served
+    PENDING_HIGH --> ALARM_HIGH : delay served and value > hiSoft
     PENDING_HIGH --> OK : value ≤ hiSoft − hyst
     ALARM_HIGH --> OK : value ≤ hiSoft − hyst
     OK --> CRITICAL_HIGH : value > hiHard
@@ -78,6 +78,14 @@ The rules behind the diagram:
 - **Every exit uses the hysteresis**, including the exit from `PENDING`.
   Without it, a value hovering around a limit would restart the delay with
   every crossing and never raise an alarm.
+- **`ALARM` only beyond the limit.** `PENDING` is held anywhere in the
+  hysteresis band, but it becomes `ALARM` only when the delay has been served
+  *and* the value is beyond the soft limit. If the value is back inside the
+  limit when the delay expires, `PENDING` stays and the first sample beyond
+  the limit raises the alarm; the delay is not restarted. An alarm thus never
+  reports a value inside the range. Set `confirmBeyondLimit = false` to let
+  the delay alone promote `PENDING` anywhere in the band (the 0.2.0
+  behaviour).
 - **From `CRITICAL` back to `ALARM`, not `PENDING`.** If the value falls below
   the hard limit but is still outside the soft one, the delay has already been
   served by the excursion itself.
@@ -151,6 +159,8 @@ cfg.alarmDelaySeconds = 600;
   limit equal to the soft one (the default) the delay has no effect.
 - **`hysteresis`** — larger than the noise left after smoothing. Must be less
   than half the soft range.
+- **`confirmBeyondLimit`** — leave it on unless an alarm must be raised for
+  a value that has come back inside the limit but not yet by the hysteresis.
 
 ## Tuning with recorded data
 
@@ -186,6 +196,7 @@ struct RangeMonitor::Config {
     uint32_t alarmDelaySeconds;   // 0: soft limits alarm at once
     uint32_t faultDelaySeconds;   // 0: the first invalid sample is a FAULT
     bool     spikeFilter;         // true by default
+    bool     confirmBeyondLimit;  // true: ALARM only beyond the soft limit
 
     static Config range(float lo, float hi, float hysteresis, uint32_t tauSeconds);
     static Config symmetric(float target, float delta, float hysteresis, uint32_t tauSeconds);

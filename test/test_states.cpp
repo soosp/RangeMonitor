@@ -93,9 +93,77 @@ int main() {
         // Hovering around the limit: the delay must not restart each time
         for (int i = 0; i < 40; i++) f.feed((i % 2) ? -14.8f : -15.3f);  // 400 s
         CHECK_STATE(m.state(), State::PENDING_HIGH);
-        f.hold(-15.3f, 250);
+        f.hold(-14.8f, 250);
         CHECK_STATE(m.state(), State::ALARM_HIGH);
         CHECK(f.alarms == 1);
+    }
+
+    SECTION("delay served inside the limit: PENDING until beyond it");
+    {
+        Cfg c = plain();
+        c.hiHard = -5.0f;
+        c.alarmDelaySeconds = 600;
+        RangeMonitor m(c);
+        Feeder f(m);
+        f.feed(-18.0f);
+        CHECK_STATE(f.feed(-14.0f), State::PENDING_HIGH);
+        f.hold(-15.3f, 900);                  // inside the limit, in the band
+        CHECK_STATE(m.state(), State::PENDING_HIGH);
+        CHECK(f.alarms == 0);
+        f.hold(-15.0f, 60);                   // on the limit is not beyond it
+        CHECK_STATE(m.state(), State::PENDING_HIGH);
+        // The delay kept its start time: the first sample beyond the limit
+        CHECK_STATE(f.feed(-14.9f), State::ALARM_HIGH);
+        CHECK(f.alarms == 1);
+        // ALARM keeps the hysteresis release
+        CHECK_STATE(f.feed(-15.5f), State::ALARM_HIGH);
+        CHECK_STATE(f.feed(-16.0f), State::OK);
+    }
+
+    SECTION("delay served inside the limit, lower side");
+    {
+        Cfg c = plain();
+        c.loHard = -30.0f;
+        c.alarmDelaySeconds = 600;
+        RangeMonitor m(c);
+        Feeder f(m);
+        f.feed(-18.0f);
+        CHECK_STATE(f.feed(-23.0f), State::PENDING_LOW);
+        f.hold(-21.5f, 900);
+        CHECK_STATE(m.state(), State::PENDING_LOW);
+        CHECK_STATE(f.feed(-22.1f), State::ALARM_LOW);
+        CHECK(f.alarms == 1);
+    }
+
+    SECTION("pending inside the limit still clears by the hysteresis");
+    {
+        Cfg c = plain();
+        c.hiHard = -5.0f;
+        c.alarmDelaySeconds = 600;
+        RangeMonitor m(c);
+        Feeder f(m);
+        f.feed(-18.0f);
+        CHECK_STATE(f.feed(-14.0f), State::PENDING_HIGH);
+        f.hold(-15.5f, 900);
+        CHECK_STATE(m.state(), State::PENDING_HIGH);
+        CHECK_STATE(f.feed(-16.0f), State::OK);
+        CHECK(f.alarms == 0);
+    }
+
+    SECTION("confirmBeyondLimit off: the delay alone promotes, in the band");
+    {
+        Cfg c = plain();
+        c.hiHard = -5.0f;
+        c.alarmDelaySeconds = 600;
+        c.confirmBeyondLimit = false;
+        RangeMonitor m(c);
+        Feeder f(m);
+        f.feed(-18.0f);
+        CHECK_STATE(f.feed(-14.0f), State::PENDING_HIGH);
+        f.hold(-15.3f, 900);
+        CHECK_STATE(m.state(), State::ALARM_HIGH);
+        CHECK(f.alarms == 1);
+        CHECK(m.getStatus(f.now).value < -15.0f);
     }
 
     SECTION("hard limit during the delay: immediate CRITICAL");

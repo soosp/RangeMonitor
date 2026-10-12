@@ -8,6 +8,20 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- `Config::confirmBeyondLimit`: `PENDING` becomes `ALARM` only when the alarm
+  delay has been served and the value is beyond the soft limit. If the value
+  is back inside the limit (but not yet by the hysteresis) when the delay
+  expires, `PENDING` stays, the delay keeps its start time, and the first
+  sample beyond the limit raises the alarm
+- `replay --alarm-in-band` to turn it off
+
+### Changed
+
+- `confirmBeyondLimit` is on by default, so an alarm no longer reports a
+  value inside the range. Set it to `false` for the 0.2.0 behaviour
+
 ## [0.2.0] - 2026-10-08
 
 ### Added

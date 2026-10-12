@@ -33,6 +33,15 @@ int main() {
         Cfg m; m.loSoft = 15.0f; m.hiHard = 32.0f; CHECK(m.validate() == Err::NONE);
     }
 
+    SECTION("defaults");
+    {
+        Cfg d;
+        CHECK(d.spikeFilter);
+        CHECK(d.confirmBeyondLimit);
+        CHECK(Cfg::range(-22.0f, -15.0f, 1.0f, 300).confirmBeyondLimit);
+        CHECK(Cfg::symmetric(-18.0f, 3.0f, 1.0f, 600).confirmBeyondLimit);
+    }
+
     SECTION("symmetric() == range()");
     {
         Cfg a = Cfg::symmetric(-18.0f, 3.0f, 1.0f, 600);

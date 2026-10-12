@@ -46,6 +46,15 @@
  * hovering around a limit would restart the delay with every crossing and
  * never raise an alarm.
  *
+ * PENDING is held anywhere in the hysteresis band, but by default
+ * (confirmBeyondLimit) it becomes ALARM only when the delay has been served
+ * and the value is beyond the soft limit. If the value is back inside the
+ * limit (but not yet by the hysteresis) when the delay expires, PENDING
+ * stays, the delay keeps its start time, and the first sample beyond the
+ * limit raises the alarm. An alarm thus never reports a value that is inside
+ * the range. With confirmBeyondLimit false, the delay alone promotes PENDING
+ * anywhere in the band.
+ *
  * Leaving CRITICAL while still outside the soft limit goes straight to ALARM,
  * not to PENDING: the delay has already been served by the excursion itself.
  *
@@ -206,12 +215,17 @@ public:
         uint32_t alarmDelaySeconds; ///< Soft-limit delay; 0: immediate
         uint32_t faultDelaySeconds; ///< Invalid-data delay; 0: immediate
         bool     spikeFilter;       ///< Median of the last 3 valid samples
+        /// PENDING becomes ALARM only while the value is beyond the soft
+        /// limit; false: anywhere in the hysteresis band (0.2.0 behaviour)
+        bool     confirmBeyondLimit;
 
-        /// No limits, no smoothing, no delays, spike filter on.
+        /// No limits, no smoothing, no delays, spike filter on, an alarm
+        /// only beyond the limit.
         Config()
             : loSoft(NAN), hiSoft(NAN), loHard(NAN), hiHard(NAN)
             , hysteresis(0.0f), tauSeconds(0), alarmDelaySeconds(0)
-            , faultDelaySeconds(0), spikeFilter(true) {}
+            , faultDelaySeconds(0), spikeFilter(true)
+            , confirmBeyondLimit(true) {}
 
         /**
          * @brief Two-sided range with hard limits following the soft ones.
@@ -697,12 +711,18 @@ private:
             if (x < loS + h) return State::ALARM_LOW;
             break;
         case State::PENDING_HIGH:
-            if (x > hiS - h) return _delayServed(nowMs) ? State::ALARM_HIGH
-                                                        : State::PENDING_HIGH;
+            // Held anywhere in the band; promoted when the delay is served
+            // and, with confirmBeyondLimit, the value is beyond the limit
+            if (x > hiS - h) return (_delayServed(nowMs) &&
+                                     (!_cfg.confirmBeyondLimit || x > hiS))
+                                        ? State::ALARM_HIGH
+                                        : State::PENDING_HIGH;
             break;
         case State::PENDING_LOW:
-            if (x < loS + h) return _delayServed(nowMs) ? State::ALARM_LOW
-                                                        : State::PENDING_LOW;
+            if (x < loS + h) return (_delayServed(nowMs) &&
+                                     (!_cfg.confirmBeyondLimit || x < loS))
+                                        ? State::ALARM_LOW
+                                        : State::PENDING_LOW;
             break;
         default:
             break;
