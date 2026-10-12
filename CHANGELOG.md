@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-12
+
 ### Added
 
 - `Config::confirmBeyondLimit`: `PENDING` becomes `ALARM` only when the alarm
@@ -62,6 +64,7 @@ and this project adheres to
 - `test/replay.cpp`: replays a CSV recording through a configuration
 - Examples: `Basic`, `DefrostSimulation`
 
-[Unreleased]: https://github.com/soosp/RangeMonitor/compare/0.2.0...HEAD
+[Unreleased]: https://github.com/soosp/RangeMonitor/compare/0.3.0...HEAD
+[0.3.0]: https://github.com/soosp/RangeMonitor/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/soosp/RangeMonitor/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/soosp/RangeMonitor/releases/tag/0.1.0
