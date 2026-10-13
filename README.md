@@ -240,6 +240,7 @@ time, and will be removed in a later release.
 |`static bool isAlarm(State)`|`ALARM_*`, `CRITICAL_*`, `FAULT`|
 |`static bool isHigh(State)` / `isLow(State)`|The `*_HIGH` / `*_LOW` states|
 |`static char* stateName(State, char* buf, size_t len)`|Lower-case name (`"critical_high"`) into a caller buffer; `STATE_NAME_SIZE` always suffices. In flash on AVR|
+|`static char* configErrorName(ConfigError, char* buf, size_t len)`|Lower-case name of a validation result (`"hi_hard_inside"`) into a caller buffer; `CONFIG_ERROR_NAME_SIZE` always suffices. In flash on AVR|
 
 The numeric values of `State` are stable and may be published or stored.
 

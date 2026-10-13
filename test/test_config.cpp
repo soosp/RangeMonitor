@@ -161,5 +161,31 @@ int main() {
         CHECK(strcmp(RangeMonitor::stateName((State)200, buf, sizeof(buf)), "unknown") == 0);
     }
 
+    SECTION("configErrorName()");
+    {
+        typedef RangeMonitor::ConfigError E;
+        const char* want[RangeMonitor::CONFIG_ERROR_COUNT] = {
+            "none", "not_finite", "soft_order", "hard_order", "hi_hard_inside",
+            "lo_hard_inside", "hysteresis", "time_range", "lock_timeout"
+        };
+        char buf[RangeMonitor::CONFIG_ERROR_NAME_SIZE];
+        size_t longest = 0;
+        for (uint8_t i = 0; i < RangeMonitor::CONFIG_ERROR_COUNT; i++) {
+            CHECK(strcmp(RangeMonitor::configErrorName((E)i, buf, sizeof(buf)), want[i]) == 0);
+            if (strlen(buf) > longest) longest = strlen(buf);
+        }
+        CHECK(longest == RangeMonitor::CONFIG_ERROR_NAME_LEN);
+        CHECK(strcmp(RangeMonitor::configErrorName(E::LOCK_TIMEOUT, buf, sizeof(buf)), "lock_timeout") == 0);
+        CHECK(strcmp(RangeMonitor::configErrorName((E)9, buf, sizeof(buf)), "unknown") == 0);
+        CHECK(strcmp(RangeMonitor::configErrorName((E)200, buf, sizeof(buf)), "unknown") == 0);
+        char small[5];
+        CHECK(strcmp(RangeMonitor::configErrorName(E::HYSTERESIS, small, sizeof(small)), "hyst") == 0);
+        CHECK(RangeMonitor::configErrorName(E::NONE, nullptr, 8) == nullptr);
+        CHECK(RangeMonitor::configErrorName(E::NONE, buf, 0) == nullptr);
+        // The values the names are indexed by
+        CHECK((uint8_t)E::NONE == 0 && (uint8_t)E::LOCK_TIMEOUT == 8);
+        CHECK((uint8_t)E::HI_HARD_INSIDE == 4 && (uint8_t)E::TIME_RANGE == 7);
+    }
+
     return finish("test_config");
 }

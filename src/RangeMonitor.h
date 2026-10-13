@@ -195,6 +195,15 @@ public:
         LOCK_TIMEOUT       ///< reconfigure() only: mutex timeout, nothing changed
     };
 
+    /// Number of ConfigError values; sizes lookup tables indexed by ConfigError.
+    static constexpr uint8_t CONFIG_ERROR_COUNT = 9;
+
+    /// Longest name returned by configErrorName(), excluding the null terminator.
+    static constexpr size_t CONFIG_ERROR_NAME_LEN  = 14;  // "hi_hard_inside"
+
+    /// Buffer size for configErrorName(), including the null terminator.
+    static constexpr size_t CONFIG_ERROR_NAME_SIZE = CONFIG_ERROR_NAME_LEN + 1;
+
     /**
      * @brief Configuration of one monitor.
      *
@@ -619,6 +628,39 @@ public:
         return buf;
     }
 
+    /**
+     * @brief Copy the lower-case name of @p e into a caller-supplied buffer.
+     *
+     * Names: "none", "not_finite", "soft_order", "hard_order",
+     * "hi_hard_inside", "lo_hard_inside", "hysteresis", "time_range",
+     * "lock_timeout"; "unknown" for a value outside the enum. Stable, for a
+     * web page or a log to report which rule a configuration broke. On AVR
+     * the names live in flash.
+     *
+     * @param e    Validation result.
+     * @param buf  Destination; @ref CONFIG_ERROR_NAME_SIZE bytes always suffice.
+     * @param len  Size of @p buf in bytes, including the null terminator.
+     * @return     @p buf, or nullptr if @p buf is null or @p len is 0.
+     */
+    static char* configErrorName(ConfigError e, char* buf, size_t len) {
+        if (buf == nullptr || len == 0) return nullptr;
+        uint8_t i = static_cast<uint8_t>(e);
+        if (i > CONFIG_ERROR_COUNT) i = CONFIG_ERROR_COUNT;   // "unknown"
+#if defined(__AVR__)
+        PGM_P  src = (PGM_P)pgm_read_ptr(&_configErrorNames()[i]);
+        size_t n   = strlen_P(src);
+        if (n > len - 1) n = len - 1;
+        memcpy_P(buf, src, n);
+#else
+        const char* src = _configErrorNames()[i];
+        size_t      n   = strlen(src);
+        if (n > len - 1) n = len - 1;
+        memcpy(buf, src, n);
+#endif
+        buf[n] = '\0';
+        return buf;
+    }
+
 private:
     // =========================================================================
     // SAMPLE HANDLING (mutex held)
@@ -849,6 +891,34 @@ private:
         static const char* const names[STATE_COUNT] = {
             "unknown", "ok", "pending_high", "pending_low", "alarm_high",
             "alarm_low", "critical_high", "critical_low", "fault"
+        };
+        return names;
+    }
+#endif
+
+    /// ConfigError names, indexed by value, then "unknown" for anything
+    /// outside the enum; in flash on AVR.
+#if defined(__AVR__)
+    static const char* const* _configErrorNames() {
+        static const char e0[] PROGMEM = "none";
+        static const char e1[] PROGMEM = "not_finite";
+        static const char e2[] PROGMEM = "soft_order";
+        static const char e3[] PROGMEM = "hard_order";
+        static const char e4[] PROGMEM = "hi_hard_inside";
+        static const char e5[] PROGMEM = "lo_hard_inside";
+        static const char e6[] PROGMEM = "hysteresis";
+        static const char e7[] PROGMEM = "time_range";
+        static const char e8[] PROGMEM = "lock_timeout";
+        static const char e9[] PROGMEM = "unknown";
+        static const char* const names[CONFIG_ERROR_COUNT + 1] PROGMEM =
+            { e0, e1, e2, e3, e4, e5, e6, e7, e8, e9 };
+        return names;
+    }
+#else
+    static const char* const* _configErrorNames() {
+        static const char* const names[CONFIG_ERROR_COUNT + 1] = {
+            "none", "not_finite", "soft_order", "hard_order", "hi_hard_inside",
+            "lo_hard_inside", "hysteresis", "time_range", "lock_timeout", "unknown"
         };
         return names;
     }

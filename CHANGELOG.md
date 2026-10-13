@@ -8,6 +8,13 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- `configErrorName()`: the lower-case name of a `ConfigError` (`none`,
+  `soft_order`, `hi_hard_inside`, ...), like `stateName()`, with
+  `CONFIG_ERROR_COUNT`, `CONFIG_ERROR_NAME_LEN` and `CONFIG_ERROR_NAME_SIZE`.
+  A web page or a log can say which rule a configuration broke
+
 ## [0.3.0] - 2026-10-12
 
 ### Added
